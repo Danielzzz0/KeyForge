@@ -1,0 +1,54 @@
+{
+  "name": "keyforge",
+  "version": "0.1.0",
+  "description": "Desktop keybind editor interface for GTA V PC profiles.",
+  "author": "KeyForge",
+  "license": "MIT",
+  "productName": "KeyForge",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64",
+    "dist:portable": "electron-builder --win portable --x64"
+  },
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.keyforge.gtacontrolstudio",
+    "productName": "KeyForge",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets/keyforge-icon.ico",
+        "to": "keyforge-icon.ico"
+      }
+    ],
+    "win": {
+      "icon": "assets/keyforge-icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "KeyForge"
+    }
+  }
+}

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KeyForge</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="brand" aria-label="KeyForge home">
+          <img class="brand-logo" src="assets/keyforge.svg" alt="" />
+          <div><strong>KEYFORGE</strong><small>GTA control studio</small></div>
+        </div>
+
+        <nav class="primary-nav" aria-label="Main navigation">
+          <button class="nav-item active"><span class="nav-icon">⌘</span> Keybind editor</button>
+        </nav>
+
+        <div class="sidebar-section profiles">
+          <div class="section-label"><span>ACTIVE PROFILE</span><button class="ghost-icon" id="newProfileButton" title="Create profile">+</button></div>
+          <div id="profileList"></div>
+        </div>
+
+        <div class="sidebar-footer">
+          <p>Archive target<br /><strong>update.rpf / x64/data/control</strong></p>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div class="window-drag"></div>
+          <nav class="app-menubar" aria-label="Application menu">
+            <details class="menu-dropdown">
+              <summary>File</summary>
+              <div class="menu-panel" role="menu">
+                <button id="openFileButtonAlt" role="menuitem"><span>Open meta</span><kbd>Ctrl O</kbd></button>
+                <button id="saveXmlButtonAlt" role="menuitem"><span>Export meta</span><kbd>Ctrl S</kbd></button>
+                <button id="exportOivButton" role="menuitem"><span>Build .oiv package</span></button>
+                <div class="menu-separator"></div>
+                <div class="menu-label">Default layout</div>
+                <button id="exportDefaultBackupButton" role="menuitem"><span>Export default backup</span></button>
+                <button id="exportDefaultOivButton" role="menuitem"><span>Build default .oiv package</span></button>
+              </div>
+            </details>
+            <button class="menu-button" id="shareLayoutButton">Share</button>
+            <button class="menu-button" id="helpButton">Help</button>
+          </div>
+        </header>
+
+        <section class="page-heading">
+          <div>
+            <div class="eyebrow">CONTROL MAPPING</div>
+            <h1 id="profileTitle">Default controls</h1>
+            <p id="fileSummary">All 210 mappings from the supplied <code>default.meta</code> are ready to edit.</p>
+          </div>
+        </section>
+
+        <section class="toolbar" aria-label="Keybind filters">
+          <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search actions or keys" /></label>
+          <select class="category-select" id="categoryFilter" aria-label="Control category"><option value="all">All categories</option></select>
+          <p class="mapping-health" id="mappingHealth" hidden role="status"></p>
+          <label class="advanced-toggle"><input id="advancedMode" type="checkbox" checked /><span>Advanced mode</span></label>
+        </section>
+
+        <div class="content-grid">
+          <section class="keybind-panel" aria-label="Keybind list">
+            <div class="list-head">
+              <span>ACTION</span><span>INPUT</span><span>SOURCE</span>
+            </div>
+            <div id="bindList" class="bind-list"></div>
+          </section>
+
+          <aside class="inspector" aria-label="Selected action details">
+            <div class="inspector-header"><span>SELECTED MAPPING</span></div>
+            <div class="action-hero"><div><h2 id="detailTitle">Accelerate</h2><p id="detailCategory">Driving · Vehicle controls</p></div></div>
+            <p class="detail-description" id="detailDescription">Increases speed while operating a vehicle. This action accepts any keyboard key, mouse button, or controller input.</p>
+
+            <div class="bind-editor">
+              <div class="editor-label"><span>INPUT</span><button id="clearPrimary">Disable mapping</button></div>
+              <button id="primaryKey" class="large-key">W <small>Keyboard</small></button>
+              <p class="key-help">Click, then press a key, click a mouse button, or scroll the wheel.</p>
+            </div>
+            <label class="source-field advanced-only"><span>SOURCE TYPE</span><select id="sourceSelect"><option value="IOMS_KEYBOARD">Keyboard</option><option value="IOMS_MOUSE_BUTTON">Mouse button</option><option value="IOMS_MOUSE_WHEEL">Mouse wheel</option></select></label>
+            <label class="source-field advanced-only"><span>RAW RAGE INPUT CODE</span><input id="rawInputCode" autocomplete="off" spellcheck="false" /><button id="applyRawCode">Apply code</button></label>
+
+            <div class="inspector-divider"></div>
+            <label class="toggle-row"><span><strong>Disable this mapping</strong><small>It will be omitted from the exported <code>default.meta</code>.</small></span><input id="disableToggle" type="checkbox" /><i class="toggle"></i></label>
+            <div class="inspector-divider"></div>
+            <div class="conflict-card" id="conflictCard"><span>!</span><p><strong id="conflictTitle">Conflict check clear</strong><span id="conflictMessage">None of this action’s bindings overlap in the active profile.</span></p></div>
+            <button class="danger-button" id="resetAction">↺ Restore imported mapping</button>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status"></div>
+    <dialog class="profile-dialog" id="profileDialog">
+      <form id="profileDialogForm">
+        <h2 id="profileDialogTitle">Profile name</h2>
+        <p id="profileDialogMessage">Give this profile a memorable name.</p>
+        <input id="profileNameInput" maxlength="48" autocomplete="off" />
+        <div class="dialog-actions"><button type="button" class="secondary-button" id="profileDialogCancel">Cancel</button><button class="primary-button" id="profileDialogSubmit" type="submit">Save profile</button></div>
+      </form>
+    </dialog>
+    <dialog class="profile-dialog" id="deleteProfileDialog">
+      <form method="dialog">
+        <h2>Delete profile?</h2>
+        <p id="deleteProfileMessage">This profile and its unsaved mappings will be removed.</p>
+        <div class="dialog-actions"><button class="secondary-button" value="cancel">Cancel</button><button class="danger-confirm" value="confirm">Delete profile</button></div>
+      </form>
+    </dialog>
+    <dialog class="profile-dialog" id="importMetaDialog">
+      <form method="dialog">
+        <h2>Open control file</h2>
+        <p id="importMetaMessage">Choose how to add these mappings.</p>
+        <div class="dialog-actions"><button class="secondary-button" value="cancel">Cancel</button><button class="secondary-button" value="new-profile">Create new profile</button><button class="primary-button" value="replace">Replace current profile</button></div>
+      </form>
+    </dialog>
+    <dialog class="profile-dialog share-dialog" id="shareDialog">
+      <form id="shareCodeForm">
+        <h2>Share layout</h2>
+        <p>Send this code to another KeyForge user, or paste a code here to import it as a new profile.</p>
+        <textarea id="shareCodeInput" aria-label="Layout share code" spellcheck="false"></textarea>
+        <div class="dialog-actions"><button type="button" class="secondary-button" id="shareDialogCancel">Close</button><button type="button" class="secondary-button" id="pasteShareCode">Paste</button><button type="button" class="secondary-button" id="copyShareCode">Copy code</button><button class="primary-button" type="submit">Import as profile</button></div>
+      </form>
+    </dialog>
+    <dialog class="profile-dialog help-dialog" id="helpDialog">
+      <form method="dialog">
+        <h2>KeyForge help</h2>
+        <div class="help-content">
+          <section><strong>1. Edit a mapping</strong><p>Select an action, click its large input key, then press a keyboard key, mouse button, or mouse wheel direction. Advanced mode accepts raw RAGE input codes.</p></section>
+          <section><strong>2. Use profiles</strong><p>Create, rename, duplicate, or remove profiles from the left sidebar. Each profile keeps its own full mapping set.</p></section>
+          <section><strong>3. Import and export</strong><p>File → Open meta accepts <code>.meta</code>, <code>.xml</code>, <code>.txt</code>, and <code>.html</code>. Export a plain meta file or build an OpenIV <code>.oiv</code> package.</p></section>
+          <section><strong>4. Keep a backup or share</strong><p>File → Export default backup saves the original 210-mapping default; Build default .oiv package creates an OpenIV reset package. Share creates an offline code that another user can import as a new profile.</p></section>
+        </div>
+        <div class="dialog-actions"><button class="primary-button" value="close">Got it</button></div>
+      </form>
+    </dialog>
+    <script src="app.js"></script>
+  </body>
+</html>
