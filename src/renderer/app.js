@@ -20,9 +20,9 @@ const SOURCE_FROM_TOKEN = { K: 'IOMS_KEYBOARD', B: 'IOMS_MOUSE_BUTTON', W: 'IOMS
 function createDefaultMeta(records) {
   const mappings = records.map((record) => {
     const [input, sourceToken, parameter] = record.split('|');
-    return `<Item><Input>${input}</Input><Source>${SOURCE_FROM_TOKEN[sourceToken]}</Source><Parameters><Item>${parameter}</Item></Parameters></Item>`;
-  }).join('');
-  return `<?xml version="1.0" encoding="UTF-8"?><rage__ControlInput__ControlSettings><Mappings>${mappings}</Mappings></rage__ControlInput__ControlSettings>`;
+    return `\t\t<Item>\n\t\t\t<Input>${input}</Input>\n\t\t\t<Source>${SOURCE_FROM_TOKEN[sourceToken]}</Source>\n\t\t\t<Parameters>\n\t\t\t\t<Item>${parameter}</Item>\n\t\t\t</Parameters>\n\t\t</Item>`;
+  }).join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>\n\n<rage__ControlInput__ControlSettings>\n\t<Mappings>\n${mappings}\n\t</Mappings>\n</rage__ControlInput__ControlSettings>\n`;
 }
 
 const PROFILE_STORE_KEY = 'keyforge-profiles-v2';
@@ -34,7 +34,7 @@ let activeProfileId = restoredProfiles && profiles.has(restoredProfiles.activePr
 let profile = profiles.get(activeProfileId).profile;
 let selectedOrder = allMappingsFor(profile)[0].order;
 let editing = false;
-let advancedMode = true;
+let advancedMode = false;
 let categoryValue = 'all';
 
 const bindList = document.querySelector('#bindList');

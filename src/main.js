@@ -1,4 +1,4 @@
-const { app, BrowserWindow, clipboard, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, clipboard, dialog, ipcMain, nativeImage } = require('electron');
 const crypto = require('crypto');
 const fs = require('fs/promises');
 const os = require('os');
@@ -78,6 +78,9 @@ app.whenReady().then(() => {
       await fs.mkdir(contentDirectory);
       await fs.writeFile(path.join(contentDirectory, 'default.meta'), xml, 'utf8');
       await fs.writeFile(path.join(stagingDirectory, 'assembly.xml'), buildOivAssembly(profileName), 'utf8');
+      const icon = nativeImage.createFromPath(path.join(__dirname, 'KeyForgeWhite.png'));
+      if (icon.isEmpty()) throw new Error('Could not load the OpenIV package icon.');
+      await fs.writeFile(path.join(stagingDirectory, 'icon.png'), icon.resize({ width: 128, height: 128 }).toPNG());
       await createZip(stagingDirectory, packageZip);
       await fs.copyFile(packageZip, result.filePath);
       return { filePath: result.filePath };
@@ -107,7 +110,7 @@ function buildOivAssembly(profileName) {
     <author><displayName>KeyForge</displayName></author>
     <description><![CDATA[Custom GTA V PC control settings exported by KeyForge. Install to the OpenIV mods folder only.]]></description>
   </metadata>
-  <colors><headerBackground useBlackTextColor="False">$FF242018</headerBackground><iconBackground>$FFFFBE3C</iconBackground></colors>
+  <colors><headerBackground useBlackTextColor="False">$FFFBAD22</headerBackground><iconBackground>$FFFBAD22</iconBackground></colors>
   <content>
     <archive path="update\\update.rpf" createIfNotExist="False" type="RPF7">
       <add source="default.meta">x64\\data\\control\\default.meta</add>
